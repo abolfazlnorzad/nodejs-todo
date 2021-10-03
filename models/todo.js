@@ -1,47 +1,21 @@
-const todoUtils = require("../utils/crud");
+const mongoose = require("mongoose");
 
-class Todo {
-  constructor(id, text, done = false) {
-    this.id = id;
-    this.text = text;
-    this.done = done;
-  }
+const todoSchema = new mongoose.Schema({
+    text: {
+        type: String,
+        minlength: 3,
+        required: true,
+        maxlength: 255,
+        trim: true
+    },
 
-  save(callback) {
-    todoUtils.readTodos((todos) => {
-      todos.push(this);
-      todoUtils.writeTodos(todos, (err) => {
-        callback(err);
-      });
-    });
-  }
+    done: {
+        type: Boolean,
+        required: false,
+        default: false
+    }
+});
 
-  static fetchAll(callback) {
-    todoUtils.readTodos((todos) => {
-      return callback(todos);
-    });
-  }
-
-  static deleteTodo(id, callback) {
-    todoUtils.readTodos((todos) => {
-      const filtredTodos = todos.filter((t) => t.id != id);
-      todoUtils.writeTodos(filtredTodos, (err) => {
-        return callback(err);
-      });
-    });
-  }
-
-  static setDoneTodo(id, callback) {
-    todoUtils.readTodos((todos) => {
-      const todoIndex = todos.findIndex((t) => t.id == id);
-      const todo = todos[todoIndex];
-      todo.done = !todo.done;
-      todos[todoIndex] = todo;
-      todoUtils.writeTodos(todos, (err) => {
-        return callback(err);
-      });
-    });
-  }
-}
+const Todo = mongoose.model("Todo", todoSchema)
 
 module.exports = Todo;

@@ -1,30 +1,37 @@
 const Todo = require('../models/todo');
-const todoUtols = require('../utils/crud');
-exports.addTodo = (req,res)=>{
-    if(! req.body.todo) return res.redirect("/");
-    const todo = new Todo(todoUtols.genrateId() , req.body.todo , false);
-    todo.save(err =>{
-        if(! err) return res.redirect("/");
-        else{
-            console.log(err);
-        }
-    })
+
+exports.addTodo = async (req, res) => {
+    if (!req.body.todo) return res.redirect("/");
+    try{
+        await Todo.create({
+            text: req.body.todo
+        });
+        res.redirect("/");
+    }catch (e){
+        console.log(e)
+    }
 }
 
-exports.deleteTodo = (req,res)=>{
-    if(! req.params.id ) return res.redirect("/");
-     Todo.deleteTodo(req.params.id,err=>{
-        if(! err) return res.redirect("/");
-        console.log(err);
-    })
+exports.deleteTodo = async (req, res) => {
+    if (!req.params.id) return res.redirect("/");
+    try{
+        await Todo.findByIdAndRemove(req.params.id)
+        res.redirect("/")
+    }catch (e) {
+        console.log(e)
+    }
 }
 
-exports.setDoneTodo = (req,res)=>{
-    if(! req.params.id) return res.redirect("/");
-    Todo.setDoneTodo(req.params.id,err=>{
-        if(! err) return res.redirect("/");
-        console.log(err);
-    })
+exports.setDoneTodo = async (req, res) => {
+    if (!req.params.id) return res.redirect("/");
+    try{
+       const todo =  await  Todo.findById(req.params.id);
+        todo.done = ! todo.done ;
+        await todo.save();
+        res.redirect("/");
+    }catch (e) {
+        console.log(e)
+    }
 }
 
 
